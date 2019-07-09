@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+	<!-- 第一步扫描service包 -->
+	<context:component-scan base-package="com.iep.schoolstandard.service" />
+
+	<!-- 第二步：配置数据源 -->
+	<bean id="dataSource" class="org.apache.commons.dbcp2.BasicDataSource">
+		<property name="driverClassName" value="com.mysql.cj.jdbc.Driver" />
+		<property name="url"
+			value="jdbc:mysql://localhost:3306/iep_database?useUnicode=true&amp;characterEncoding=utf-8&amp;serverTimezone=GMT&amp;allowMultiQueries=true" />
+		<property name="username" value="root" />
+		<property name="password" value="078406aaa" />
+		<property name="maxTotal" value="50" />
+		<property name="maxIdle" value="20" />
+		<property name="initialSize" value="5" />
+	</bean>
+
+	<!-- 连接数据库的url： 问题(1)：【报错】对实体 "characterEncoding" 的引用必须以 ';' 分隔符结尾解决方法： 
+		这是“&”定义与解析的原因，需要对&进行转义。 &转义为&amp; 例如：?useUnicode=true&autoReconnect=true&rewriteBatchedStatements=TRUE 
+		需改为：?useUnicode=true&amp;autoReconnect=true&amp;rewriteBatchedStatements=TRUE 
+		问题(2)：【报错】The server time zone value '???ú±ê×??±??' is unrecognized or represents 
+		more than one time zone 可能是因为mysql的版本太高了，所以才会出现这个报错。 如果你加载mysql比较低的版本，则不会有这种情况了。 
+		解决方法： 在配置文件中的 连接字符串后面加上serverTimezone=UTC或者serverTimezone=GMT用&amp;前后连接 UTC是统一标准世界时间如果指定使用gmt+8时区，需要写成GMT%2B8，否则可能报解析为空的错误 
+		问题(3)：如果输入中文存在乱码，或者中文字符存入数据库时出现问号，则可以如下设置: 在配置文件中的 连接字符串后面加上useUnicode=true用&amp;前后连接 -->
+
+	<!-- 第三步：为数据源添加事务管理 -->
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<!-- 第四步：为管理添加注解驱动 -->
+	<tx:annotation-driven transaction-manager="transactionManager" />
+
+	<!--第五步：配置mybatis工厂，同时指定数据源，并将其与mybatis完美结合 -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<!-- 指定数据源 -->
+		<property name="dataSource" ref="dataSource" />
+
+		<!-- 配置mybatis的核心配置文件 -->
+		<property name="configLocation"
+			value="classpath:com/iep/schoolstandard/mybatis/MybatisConfig.xml" />
+	</bean>
+
+	<!-- 第六步：使用spring管理mybatis的数据操作接口 Mapper代理开发是其中最简洁的一种：使用spring自动扫描mybatis接口并装配 
+		spring将指定包中被@Mapper注解标注的接口自动扫描成mybatis的映射接口 -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<!-- 这里是最后一项bean的配置，所以可以不用id元素 -->
+
+		<!-- 依赖注入bean工厂 -->
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
+		<!-- 使用mybatis-spring组件扫描器，扫描指定的Dao包 -->
+		<property name="basePackage" value="com.iep.schoolstandard.dao" />
+	</bean>
+</beans>

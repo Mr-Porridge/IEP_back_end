@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iep.schoolstandard.dao.DataFormDao">
+	<select id="getDataForm" resultType="SchoolTablesDO">
+		select * from
+		superManagerTable
+	</select>
+
+	<!-- 元素类型为 "resultMap" 的内容必须匹配 -->
+	<!-- "(constructor?,id*,result*,association*,collection*,discriminator?)" -->
+	<!-- 注意 "必须匹配" 四个字, 其意味着顺序很重要, 必须要一致, 试试将 resultMap 中各元素的顺序修改为和错误信息中属性出现的顺序( -->
+	<!-- constructor -->
+	<!-- , id result association .....)一致看看; -->
+
+
+
+	<!-- <select id="getSchoolTable" resultMap="getSchoolDataForm"> -->
+	<!-- select * from -->
+	<!-- schoolTables -->
+	<!-- </select> -->
+	<!-- <resultMap type="TransferTablesDTO" id="getSchoolDataForm"> -->
+	<!-- <id column="Id" property="Id" jdbcType="INTEGER" /> -->
+	<!-- <result column="describeDataForm" property="describeDataForm" -->
+	<!-- jdbcType="VARCHAR" /> -->
+	<!-- <result column="parentID" property="parentID" jdbcType="INTEGER" /> -->
+	<!-- <result column="showType" property="showType" jdbcType="VARCHAR" /> -->
+	<!-- <collection property="optionsDataForm" ofType="java.lang.String"> -->
+	<!-- <result column="optionsDataForm" /> -->
+	<!-- </collection> -->
+	<!-- </resultMap> -->
+
+	<select id="getSchoolTable" resultType="SchoolTablesDO">
+		select * from
+		schoolTable
+	</select>
+
+	<update id="updateSchoolTable" parameterType="SchoolTablesDO">
+		update
+		schoolTable
+		set
+		describeDataForm=#{describeDataForm},childrenID=#{childrenID},showType=#{showType},relevanceID=#{relevanceID}
+		where Id=#{Id}
+	</update>
+	<insert id="insertSchoolTable" parameterType="java.util.List">
+		insert into
+		schoolTable(Id,describeDataForm,childrenID,relevanceID,showType)
+		values
+		<foreach collection="list" item="schoolDataForm" separator=",">
+			(
+			#{schoolDataForm.Id,jdbcType=INTEGER},
+			#{schoolDataForm.describeDataForm,jdbcType=VARCHAR},
+			#{schoolDataForm.childrenID,jdbcType=VARCHAR},
+			#{schoolDataForm.relevanceID,jdbcType=VARCHAR},
+			#{schoolDataForm.showType,jdbcType=VARCHAR}
+			)
+		</foreach>
+	</insert>
+</mapper>

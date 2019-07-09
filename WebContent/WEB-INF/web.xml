@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
+	version="3.1" metadata-complete="true">
+
+	<!-- 实例化ApplicationContext容器 -->
+	<context-param>
+		<!-- 加载src目录下的applicationContext.xml文件 -->
+		<param-name>contextConfigLocation</param-name>
+		<param-value>classpath:applicationContext.xml</param-value>
+	</context-param>
+
+	<!-- 指定以ContextLoaderListener方式启动Spring容器 -->
+	<listener>
+		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	</listener>
+
+	<!-- 部署配置DispatcherServlet -->
+	<servlet>
+		<servlet-name>springmvc</servlet-name>
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+
+		<!-- springmvc的配置文件springmvc-servlet.xml可以放在应用程序目录中的任何地方 但是需要再web.xml中进行配置 
+			在servlet标签中的init-param元素里加载springmvc-servlet.xml配置文件 <init-param> <param-name>contextConfigLocation</param-name> 
+			<param-value>classpath:applicationContext.xml</param-value> </init-param> -->
+
+		<!-- 表示容器在启动时立即加载servlet -->
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>springmvc</servlet-name>
+		<!-- 表示处理所有的URL请求 -->
+		<url-pattern>/</url-pattern>
+	</servlet-mapping>
+
+
+
+	<!--过滤器：解决跨域问题 -->
+	<filter>
+		<filter-name>crossDomainFilter</filter-name>
+		<filter-class>com.iep.schoolstandard.controller.CrossDomainFilter</filter-class>
+	</filter>
+
+	<filter-mapping>
+		<filter-name>crossDomainFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+	<!--过滤器： 避免中文乱码 -->
+	<filter>
+		<filter-name>characterEncodingFilter</filter-name>
+		<filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+
+		<init-param>
+			<param-name>encoding</param-name>
+			<param-value>UTF-8</param-value>
+		</init-param>
+
+		<init-param>
+			<param-name>forceEncoding</param-name>
+			<param-value>true</param-value>
+		</init-param>
+	</filter>
+
+	<filter-mapping>
+		<filter-name>characterEncodingFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+</web-app>
